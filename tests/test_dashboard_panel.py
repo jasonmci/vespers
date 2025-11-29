@@ -175,7 +175,18 @@ async def test_dashboard_shows_chart_with_completed_tasks():
         assert "■" in words_section, "Words section should render box glyphs"
         assert "·" in words_section, "Words section should show remaining goal dots"
         assert "readability" in chart_text
+        readability_section = chart_text.split("readability", 1)[1].split(
+            "dialogue vs narration", 1
+        )[0]
+        assert "↓" in readability_section, "Readability section should show top range arrow"
+        assert "↑" in readability_section, "Readability section should show bottom range arrow"
+        assert "▄" in readability_section, "Readability section should render half-height bars"
+        assert "8.7" in readability_section, "Readability bars should display numeric FK values"
         assert "dialogue vs narration" in chart_text
+        dialogue_section = chart_text.split("dialogue vs narration", 1)[1]
+        assert "↓" in dialogue_section, "Dialogue section should show downward target arrow"
+        assert "↑" in dialogue_section, "Dialogue section should show upward target arrow"
+        assert "▄" in dialogue_section, "Dialogue section should render half-height dialogue blocks"
         assert "lexical variety" in chart_text
         assert "sentence & paragraph cadence" in chart_text
         assert "chapter edit pulse" in chart_text

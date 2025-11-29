@@ -1,5 +1,8 @@
 """Dashboard widgets for the Vespers application."""
 
+import re
+from typing import Optional
+
 from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
@@ -54,6 +57,9 @@ class DashboardChart(Static):
         self.lexical_variety = lexical_variety or {}
         self.cadence = cadence or {}
         self.chapter_edits = chapter_edits or {}
+        self._dialogue_bar_width = 28
+        self._readability_bar_width = 28
+        self._readability_max_grade = 20.0
 
     def render(self) -> Panel:
         """Render the dashboard chart as a Rich Panel."""
@@ -142,6 +148,7 @@ class DashboardChart(Static):
             body = Group(
                 Text("🍅 Tasks Completed", style="bold #ff8c00"),
                 Text(f"Total tasks completed: {total_tasks}", style="bold white"),
+                Text("Units Completed per day", style="dim"),
                 Text(""),
                 self._build_tasks_table(),
             )
@@ -166,9 +173,16 @@ class DashboardChart(Static):
         if not self.outline:
             body = Text("No outline progress recorded yet.", style="italic dim")
         else:
+            parent_titles = [parent.get("title", "Untitled") for parent in self.outline[:3]]
+            parent_summary = (
+                Text(f"Parents: {', '.join(parent_titles)}", style="dim")
+                if parent_titles
+                else Text("")
+            )
             body = Group(
                 Text("🗂  Outline Progress", style="bold #7fff00"),
                 Text("Tracking parent storyline progress", style="dim"),
+                parent_summary,
                 Text(""),
                 self._build_outline_table(),
             )
@@ -179,14 +193,18 @@ class DashboardChart(Static):
         if not self.recent_activity:
             body = Text("No recent activity logged.", style="italic dim")
         else:
-            entries = []
+            entry_texts = []
             for entry in self.recent_activity[:6]:
                 description = entry.get("description", "Activity")
                 ago = entry.get("ago", "just now")
-                entries.append(f"• {description} ({ago})")
+                entry_texts.append(Text(f"• {description}", overflow="fold"))
+                quoted_subjects = re.findall(r"'([^']+)'", description)
+                for subject in quoted_subjects:
+                    entry_texts.append(Text(f"   {subject}", style="dim"))
+                entry_texts.append(Text(f"   ({ago})", style="dim"))
             body = Group(
                 Text("🔔 Recent Activity", style="bold #ba55d3"),
-                Text("\n".join(entries)),
+                *entry_texts,
             )
 
         return Panel(body, title="Recent", border_style="#ba55d3", padding=(1, 1))
@@ -196,31 +214,53 @@ class DashboardChart(Static):
         data = self.readability if isinstance(self.readability, dict) else {}
         entries = data.get("entries", []) if data else []
         target_grade = data.get("target_grade", "—") if data else "—"
+        target_min_grade, target_max_grade = self._parse_readability_target_range(target_grade)
 
         if not entries:
             body = Text("No readability metrics yet.", style="italic dim")
         else:
             table = Table(expand=True, pad_edge=False, show_edge=False)
             table.add_column("Day", style="bold #9370db")
-            table.add_column("F-K", justify="right")
+            table.add_column("Blend", justify="left")
             table.add_column("Avg Sent", justify="right")
             table.add_column("Sent/Para", justify="right")
+
+            top_indicator, bottom_indicator = self._build_readability_target_lines(
+                target_min_grade, target_max_grade
+            )
+            if top_indicator:
+                table.add_row("", top_indicator, "", "")
 
             for entry in entries[:5]:
                 label = entry.get("label", "—")
                 fk_grade = entry.get("fk_grade")
                 avg_sentence_length = entry.get("avg_sentence_length")
                 sentences_per_paragraph = entry.get("sentences_per_paragraph")
+                bar = self._build_readability_bar(fk_grade).copy()
+                if isinstance(fk_grade, (int, float)):
+                    bar.append(f" {fk_grade:.1f}", style="bold white")
+                else:
+                    bar.append(" —", style="dim")
                 table.add_row(
                     label,
-                    f"{fk_grade:.1f}" if isinstance(fk_grade, (int, float)) else "—",
+                    bar,
                     f"{avg_sentence_length}" if avg_sentence_length is not None else "—",
                     f"{sentences_per_paragraph}" if sentences_per_paragraph is not None else "—",
                 )
 
+            if bottom_indicator:
+                table.add_row("", bottom_indicator, "", "")
+
+            arrow_annotations: list[str] = []
+            if target_max_grade is not None:
+                arrow_annotations.append(f"↓ high {target_max_grade:g}")
+            if target_min_grade is not None:
+                arrow_annotations.append(f"↑ low {target_min_grade:g}")
+            target_summary = " • ".join([f"Target F-K grade: {target_grade}", *arrow_annotations])
+
             body = Group(
                 Text("📚 Readability Blend", style="bold #9370db"),
-                Text(f"Target F-K grade: {target_grade}", style="dim"),
+                Text(target_summary, style="dim"),
                 Text(""),
                 table,
             )
@@ -232,40 +272,178 @@ class DashboardChart(Static):
         data = self.dialogue_mix if isinstance(self.dialogue_mix, dict) else {}
         entries = data.get("entries", []) if data else []
         target_ratio = data.get("target_ratio", "—") if data else "—"
+        target_dialogue, target_narration = self._parse_target_mix(target_ratio)
 
         if not entries:
             body = Text("No dialogue mix data yet.", style="italic dim")
         else:
-            table = Table(expand=True, pad_edge=False, show_edge=False)
-            table.add_column("Segment", style="bold #ffa07a")
-            table.add_column("Dialogue", justify="right")
-            table.add_column("Narration", justify="right")
-            table.add_column("Spread", justify="right")
+            table = Table.grid(padding=(0, 1))
+            table.add_column("Segment", style="bold #ffa07a", ratio=1)
+            table.add_column("Mix", justify="left", ratio=3)
+            table.add_column("Pct", justify="right")
+
+            top_indicator, bottom_indicator = self._build_dialogue_target_lines(target_dialogue)
+            if top_indicator:
+                table.add_row("", top_indicator, "")
 
             for entry in entries[:5]:
                 label = entry.get("label", "—")
                 dialogue_pct = entry.get("dialogue_percent")
                 narration_pct = entry.get("narration_percent")
-                spread = None
-                if isinstance(dialogue_pct, (int, float)) and isinstance(
-                    narration_pct, (int, float)
-                ):
-                    spread = dialogue_pct - narration_pct
-                table.add_row(
-                    label,
-                    f"{dialogue_pct:.0f}%" if isinstance(dialogue_pct, (int, float)) else "—",
-                    f"{narration_pct:.0f}%" if isinstance(narration_pct, (int, float)) else "—",
-                    f"{spread:+.0f} pts" if spread is not None else "—",
+                bar = self._build_dialogue_bar(
+                    dialogue_pct,
+                    narration_pct,
+                    target_dialogue,
                 )
+                has_values = isinstance(dialogue_pct, (int, float)) and isinstance(
+                    narration_pct, (int, float)
+                )
+                pct_text = Text(
+                    (f"{dialogue_pct:.0f}% / {narration_pct:.0f}%" if has_values else "—"),
+                    style="dim",
+                )
+                table.add_row(label, bar, pct_text)
+
+            if bottom_indicator:
+                table.add_row("", bottom_indicator, "")
+
+            arrow_annotations: list[str] = []
+            if isinstance(target_dialogue, (int, float)):
+                arrow_annotations.append(f"↓ dial {target_dialogue:g}%")
+            if isinstance(target_narration, (int, float)):
+                arrow_annotations.append(f"↑ narr {target_narration:g}%")
+            target_summary = " • ".join([f"Target mix: {target_ratio}", *arrow_annotations])
 
             body = Group(
                 Text("🗣️ Dialogue vs Narration", style="bold #ffa07a"),
-                Text(f"Target mix: {target_ratio}", style="dim"),
+                Text(target_summary, style="dim"),
                 Text(""),
                 table,
             )
 
         return Panel(body, title="Dialogue Mix", border_style="#ffa07a", padding=(1, 1))
+
+    def _parse_readability_target_range(
+        self, target_grade: Optional[str]
+    ) -> tuple[Optional[float], Optional[float]]:
+        """Extract lower/upper readability target grades from text."""
+        if not target_grade or not isinstance(target_grade, str):
+            return None, None
+
+        numbers = [float(match) for match in re.findall(r"(\d+(?:\.\d+)?)", target_grade)]
+        if not numbers:
+            return None, None
+
+        min_value = min(numbers)
+        max_value = max(numbers)
+        return min_value, max_value
+
+    def _build_readability_bar(self, fk_grade: Optional[float]) -> Text:
+        """Render a horizontal bar to show F-K grade."""
+        width = self._readability_bar_width
+        max_grade = self._readability_max_grade
+
+        if not isinstance(fk_grade, (int, float)):
+            return Text("—" * width, style="dim")
+
+        grade = max(0.0, min(max_grade, float(fk_grade)))
+        filled = round((grade / max_grade) * width)
+
+        bar = Text()
+        for idx in range(width):
+            if idx < filled:
+                bar.append(Text("▄", style="bold #9370db"))
+            else:
+                bar.append(Text("▁", style="grey35"))
+        return bar
+
+    def _build_readability_target_lines(
+        self,
+        min_grade: Optional[float],
+        max_grade: Optional[float],
+    ) -> tuple[Optional[Text], Optional[Text]]:
+        """Create top/bottom arrow markers aligned with the readability bars."""
+
+        def _line(value: Optional[float], symbol: str) -> Optional[Text]:
+            index = self._grade_to_bar_index(value)
+            if index is None:
+                return None
+            chars = [" "] * self._readability_bar_width
+            chars[index] = symbol
+            return Text("".join(chars), style="bold white")
+
+        return _line(max_grade, "↓"), _line(min_grade, "↑")
+
+    def _grade_to_bar_index(self, value: Optional[float]) -> Optional[int]:
+        """Convert a grade value to a bar index within readability bars."""
+        if value is None or not isinstance(value, (int, float)):
+            return None
+
+        width = self._readability_bar_width
+        max_grade = self._readability_max_grade
+        grade = max(0.0, min(max_grade, float(value)))
+        if width <= 1:
+            return 0
+        return max(0, min(width - 1, round((grade / max_grade) * (width - 1))))
+
+    def _parse_target_mix(
+        self, target_ratio: Optional[str]
+    ) -> tuple[Optional[float], Optional[float]]:
+        """Extract target dialogue/narration percentages from text."""
+        if not target_ratio or not isinstance(target_ratio, str):
+            return None, None
+
+        numbers = re.findall(r"(\d+(?:\.\d+)?)", target_ratio)
+        if len(numbers) >= 2:
+            return float(numbers[0]), float(numbers[1])
+        if numbers:
+            value = float(numbers[0])
+            return value, 100 - value
+        return None, None
+
+    def _build_dialogue_bar(
+        self,
+        dialogue_pct: Optional[float],
+        narration_pct: Optional[float],
+        target_dialogue: Optional[float],
+    ) -> Text:
+        """Render a horizontal bar showing dialogue vs narration."""
+        bar_width = self._dialogue_bar_width
+
+        if not isinstance(dialogue_pct, (int, float)) or not isinstance(
+            narration_pct, (int, float)
+        ):
+            return Text("—" * bar_width, style="dim")
+
+        dialogue_pct = max(0.0, min(100.0, float(dialogue_pct)))
+        dialogue_length = round((dialogue_pct / 100) * bar_width)
+
+        bar_line = Text()
+        for idx in range(bar_width):
+            if idx < dialogue_length:
+                bar_line.append(Text("▄", style="bold #ffa07a"))
+            else:
+                bar_line.append(Text("▁", style="grey35"))
+
+        return bar_line
+
+    def _build_dialogue_target_lines(
+        self, target_dialogue: Optional[float]
+    ) -> tuple[Optional[Text], Optional[Text]]:
+        """Create shared arrow indicators for the dialogue bar column."""
+        if not isinstance(target_dialogue, (int, float)):
+            return None, None
+
+        bar_width = self._dialogue_bar_width
+        target_ratio = max(0.0, min(100.0, float(target_dialogue)))
+        target_idx = max(0, min(bar_width - 1, round((target_ratio / 100) * (bar_width - 1))))
+
+        def _line(symbol: str) -> Text:
+            chars = [" "] * bar_width
+            chars[target_idx] = symbol
+            return Text("".join(chars), style="bold white")
+
+        return _line("↓"), _line("↑")
 
     def _build_lexical_panel(self) -> Panel:
         """Create the lexical variety panel content."""
