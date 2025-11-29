@@ -80,6 +80,57 @@ async def test_dashboard_shows_chart_with_completed_tasks():
         {"description": "Completed task: 'Review Chapter 3'", "ago": "2 hours ago"},
         {"description": "Added 347 words to 'Project Notes'", "ago": "3 hours ago"},
     ]
+    app.readability = {
+        "target_grade": "8-10",
+        "entries": [
+            {
+                "label": "Today",
+                "fk_grade": 8.7,
+                "avg_sentence_length": 15,
+                "sentences_per_paragraph": 4,
+            },
+            {
+                "label": "Yesterday",
+                "fk_grade": 9.1,
+                "avg_sentence_length": 16,
+                "sentences_per_paragraph": 5,
+            },
+        ],
+    }
+    app.dialogue_mix = {
+        "target_ratio": "45% / 55%",
+        "entries": [
+            {
+                "label": "Chapter 14",
+                "dialogue_percent": 48,
+                "narration_percent": 52,
+            }
+        ],
+    }
+    app.lexical_variety = {
+        "target_ttr": 0.48,
+        "target_unique_words": 2800,
+        "entries": [
+            {
+                "label": "Segment A",
+                "ttr": 0.5,
+                "unique_words": 2900,
+                "rare_words": 520,
+            }
+        ],
+    }
+    app.cadence = {
+        "target_sentence_length": 15,
+        "target_sentences_per_paragraph": 4,
+        "entries": [
+            {
+                "label": "Latest",
+                "avg_sentence_length": 14,
+                "sentences_per_paragraph": 4,
+                "paragraphs_per_scene": 6,
+            }
+        ],
+    }
 
     async with app.run_test():
         # Navigate to dashboard (it's already the default)
@@ -104,6 +155,10 @@ async def test_dashboard_shows_chart_with_completed_tasks():
         words_section = chart_text.split("words written", 1)[1]
         assert "■" in words_section, "Words section should render box glyphs"
         assert "·" in words_section, "Words section should show remaining goal dots"
+        assert "readability" in chart_text
+        assert "dialogue vs narration" in chart_text
+        assert "lexical variety" in chart_text
+        assert "sentence & paragraph cadence" in chart_text
         assert "recent activity" in chart_text
         assert "review chapter 3" in chart_text
         assert "1,020" in chart_text or "1020" in chart_text
@@ -120,6 +175,10 @@ async def test_dashboard_shows_message_when_no_tasks_completed():
     app.words_written = []
     app.outline = []
     app.recent_activity = []
+    app.readability = {}
+    app.dialogue_mix = {}  # type: ignore[attr-defined]
+    app.lexical_variety = {}  # type: ignore[attr-defined]
+    app.cadence = {}  # type: ignore[attr-defined]
 
     async with app.run_test():
         # Navigate to dashboard (it's already the default)

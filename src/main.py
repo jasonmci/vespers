@@ -28,6 +28,10 @@ class VespersApp(App):
         self.words_written: list[dict] = data.get("words_written", [])
         self.outline: list[dict] = data.get("outline", [])
         self.recent_activity: list[dict] = data.get("recent_activity", [])
+        self.readability: dict = data.get("readability", {})
+        self.dialogue_mix: dict = data.get("dialogue_mix", {})
+        self.lexical_variety: dict = data.get("lexical_variety", {})
+        self.cadence: dict = data.get("cadence", {})
 
     def _load_mock_data(self) -> dict:
         """Load mock data from JSON file."""
@@ -47,6 +51,10 @@ class VespersApp(App):
                     words_written=self.words_written,
                     outline=self.outline,
                     recent_activity=self.recent_activity,
+                    readability=self.readability,
+                    dialogue_mix=self.dialogue_mix,
+                    lexical_variety=self.lexical_variety,
+                    cadence=self.cadence,
                     id="dashboard-chart",
                 )
             with TabPane("Task", id="task"):

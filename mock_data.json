@@ -83,6 +83,112 @@
             "words": 760
         }
     ],
+    "readability": {
+        "target_grade": "8-10",
+        "entries": [
+            {
+                "label": "Today",
+                "fk_grade": 8.7,
+                "flesch": 64.2,
+                "avg_sentence_length": 15,
+                "sentences_per_paragraph": 4
+            },
+            {
+                "label": "Yesterday",
+                "fk_grade": 9.1,
+                "flesch": 61.8,
+                "avg_sentence_length": 16,
+                "sentences_per_paragraph": 5
+            },
+            {
+                "label": "3 days ago",
+                "fk_grade": 8.3,
+                "flesch": 66.4,
+                "avg_sentence_length": 14,
+                "sentences_per_paragraph": 4
+            },
+            {
+                "label": "Last week",
+                "fk_grade": 10.2,
+                "flesch": 57.9,
+                "avg_sentence_length": 18,
+                "sentences_per_paragraph": 6
+            }
+        ]
+    },
+    "dialogue_mix": {
+        "target_ratio": "45% dialogue / 55% narration",
+        "entries": [
+            {
+                "label": "Act I scenes",
+                "dialogue_percent": 42,
+                "narration_percent": 58
+            },
+            {
+                "label": "Act II midpoint",
+                "dialogue_percent": 46,
+                "narration_percent": 54
+            },
+            {
+                "label": "Act III finale",
+                "dialogue_percent": 51,
+                "narration_percent": 49
+            },
+            {
+                "label": "Side stories",
+                "dialogue_percent": 38,
+                "narration_percent": 62
+            }
+        ]
+    },
+    "lexical_variety": {
+        "target_ttr": 0.48,
+        "target_unique_words": 2800,
+        "entries": [
+            {
+                "label": "Draft 17",
+                "ttr": 0.52,
+                "unique_words": 3120,
+                "rare_words": 640
+            },
+            {
+                "label": "Revision B",
+                "ttr": 0.47,
+                "unique_words": 2950,
+                "rare_words": 520
+            },
+            {
+                "label": "Side quest",
+                "ttr": 0.50,
+                "unique_words": 2675,
+                "rare_words": 480
+            }
+        ]
+    },
+    "cadence": {
+        "target_sentence_length": 15,
+        "target_sentences_per_paragraph": 4,
+        "entries": [
+            {
+                "label": "Chapter 12",
+                "avg_sentence_length": 16,
+                "sentences_per_paragraph": 4.3,
+                "paragraphs_per_scene": 6
+            },
+            {
+                "label": "Chapter 18",
+                "avg_sentence_length": 14,
+                "sentences_per_paragraph": 3.8,
+                "paragraphs_per_scene": 7
+            },
+            {
+                "label": "Bridge scenes",
+                "avg_sentence_length": 12,
+                "sentences_per_paragraph": 3.1,
+                "paragraphs_per_scene": 5
+            }
+        ]
+    },
     "recent_activity": [
         {
             "type": "task",
