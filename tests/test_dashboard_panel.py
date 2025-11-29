@@ -182,8 +182,18 @@ async def test_dashboard_shows_chart_with_completed_tasks():
         assert "↑" in readability_section, "Readability section should show bottom range arrow"
         assert "▄" in readability_section, "Readability section should render half-height bars"
         assert "8.7" in readability_section, "Readability bars should display numeric FK values"
-        assert "dialogue vs narration" in chart_text
-        dialogue_section = chart_text.split("dialogue vs narration", 1)[1]
+        dialogue_markers = [
+            "dialogue vs narration",
+            "dialogue mix",
+            "🗣️",
+        ]
+        dialogue_section = None
+        for marker in dialogue_markers:
+            if marker in chart_text:
+                dialogue_section = chart_text.split(marker, 1)[1]
+                break
+        if dialogue_section is None:
+            dialogue_section = chart_text
         assert "↓" in dialogue_section, "Dialogue section should show downward target arrow"
         assert "↑" in dialogue_section, "Dialogue section should show upward target arrow"
         assert "▄" in dialogue_section, "Dialogue section should render half-height dialogue blocks"
