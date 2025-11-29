@@ -131,6 +131,25 @@ async def test_dashboard_shows_chart_with_completed_tasks():
             }
         ],
     }
+    app.chapter_edits = {
+        "target_touch_window": "Touch every chapter weekly",
+        "chapters": [
+            {
+                "name": "Chapter 1",
+                "files": ["chapter01.md"],
+                "additions": 120,
+                "deletions": 25,
+                "edit_sessions": 4,
+            },
+            {
+                "name": "Chapter 9",
+                "files": ["chapter09.md", "chapter09-alt.md"],
+                "additions": 40,
+                "deletions": 18,
+                "edit_sessions": 1,
+            },
+        ],
+    }
 
     async with app.run_test():
         # Navigate to dashboard (it's already the default)
@@ -159,6 +178,7 @@ async def test_dashboard_shows_chart_with_completed_tasks():
         assert "dialogue vs narration" in chart_text
         assert "lexical variety" in chart_text
         assert "sentence & paragraph cadence" in chart_text
+        assert "chapter edit pulse" in chart_text
         assert "recent activity" in chart_text
         assert "review chapter 3" in chart_text
         assert "1,020" in chart_text or "1020" in chart_text
@@ -179,6 +199,7 @@ async def test_dashboard_shows_message_when_no_tasks_completed():
     app.dialogue_mix = {}  # type: ignore[attr-defined]
     app.lexical_variety = {}  # type: ignore[attr-defined]
     app.cadence = {}  # type: ignore[attr-defined]
+    app.chapter_edits = {}  # type: ignore[attr-defined]
 
     async with app.run_test():
         # Navigate to dashboard (it's already the default)

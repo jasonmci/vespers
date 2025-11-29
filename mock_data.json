@@ -189,6 +189,74 @@
             }
         ]
     },
+    "chapter_edits": {
+        "target_touch_window": "Revisit every chapter at least once per week",
+        "chapters": [
+            {
+                "name": "Chapter 1 - Arrival",
+                "files": [
+                    "ch01-arrival.md",
+                    "ch01-beat-sheet.md"
+                ],
+                "additions": 320,
+                "deletions": 140,
+                "edit_sessions": 6,
+                "last_touched": "today"
+            },
+            {
+                "name": "Chapter 4 - New Allies",
+                "files": [
+                    "ch04-allies.md"
+                ],
+                "additions": 210,
+                "deletions": 95,
+                "edit_sessions": 5,
+                "last_touched": "yesterday"
+            },
+            {
+                "name": "Chapter 8 - Final Battle",
+                "files": [
+                    "ch08-final-battle.md",
+                    "ch08-alt-ending.md"
+                ],
+                "additions": 580,
+                "deletions": 260,
+                "edit_sessions": 9,
+                "last_touched": "2 days ago"
+            },
+            {
+                "name": "Chapter 12 - Fractures",
+                "files": [
+                    "ch12-fractures.md"
+                ],
+                "additions": 75,
+                "deletions": 20,
+                "edit_sessions": 2,
+                "last_touched": "6 days ago"
+            },
+            {
+                "name": "Chapter 17 - Calm",
+                "files": [
+                    "ch17-calm.md",
+                    "ch17-journal.md"
+                ],
+                "additions": 40,
+                "deletions": 15,
+                "edit_sessions": 1,
+                "last_touched": "11 days ago"
+            },
+            {
+                "name": "Epilogue - Echoes",
+                "files": [
+                    "epilogue-echoes.md"
+                ],
+                "additions": 15,
+                "deletions": 4,
+                "edit_sessions": 1,
+                "last_touched": "14 days ago"
+            }
+        ]
+    },
     "recent_activity": [
         {
             "type": "task",

@@ -1,6 +1,5 @@
 """Dashboard widgets for the Vespers application."""
 
-from rich.columns import Columns
 from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
@@ -29,6 +28,7 @@ class DashboardChart(Static):
         dialogue_mix=None,
         lexical_variety=None,
         cadence=None,
+        chapter_edits=None,
         **kwargs,
     ):
         """Initialize the dashboard chart.
@@ -42,6 +42,7 @@ class DashboardChart(Static):
             dialogue_mix: Dict summarizing amount of dialogue vs narration
             lexical_variety: Dict with vocabulary richness metrics
             cadence: Dict describing sentence/paragraph cadence metrics
+            chapter_edits: Dict with per-chapter edit activity data
         """
         super().__init__(**kwargs)
         self.completed_tasks = completed_tasks or []
@@ -52,6 +53,7 @@ class DashboardChart(Static):
         self.dialogue_mix = dialogue_mix or {}
         self.lexical_variety = lexical_variety or {}
         self.cadence = cadence or {}
+        self.chapter_edits = chapter_edits or {}
 
     def render(self) -> Panel:
         """Render the dashboard chart as a Rich Panel."""
@@ -73,6 +75,10 @@ class DashboardChart(Static):
         has_lexical = bool(lexical_entries)
         cadence_entries = self.cadence.get("entries") if isinstance(self.cadence, dict) else None
         has_cadence = bool(cadence_entries)
+        chapter_entries = (
+            self.chapter_edits.get("chapters") if isinstance(self.chapter_edits, dict) else None
+        )
+        has_chapter_edits = bool(chapter_entries)
 
         if not (
             has_tasks
@@ -83,6 +89,7 @@ class DashboardChart(Static):
             or has_dialogue
             or has_lexical
             or has_cadence
+            or has_chapter_edits
         ):
             message = Text("No productivity data yet.", style="italic dim")
             return Panel(
@@ -100,11 +107,10 @@ class DashboardChart(Static):
         dialogue_panel = self._build_dialogue_panel()
         lexical_panel = self._build_lexical_panel()
         cadence_panel = self._build_cadence_panel()
+        chapter_panel = self._build_chapter_edits_panel()
 
-        left_column = Group(task_panel, Text(""), words_panel)
-
-        middle_column = Group(outline_panel, Text(""), activity_panel)
-
+        left_column = Group(task_panel, Text(""), words_panel, Text(""), activity_panel)
+        middle_column = Group(chapter_panel, Text(""), outline_panel)
         right_column = Group(
             readability_panel,
             Text(""),
@@ -115,14 +121,13 @@ class DashboardChart(Static):
             cadence_panel,
         )
 
-        columns = Columns(
-            [left_column, middle_column, right_column],
-            expand=True,
-            equal=True,
-        )
+        grid = Table.grid(padding=(0, 1))
+        for _ in range(3):
+            grid.add_column(width=80, justify="left")
+        grid.add_row(left_column, middle_column, right_column)
 
         return Panel(
-            columns,
+            grid,
             title="Progress Overview",
             border_style="cyan",
             padding=(1, 2),
@@ -347,6 +352,71 @@ class DashboardChart(Static):
             )
 
         return Panel(body, title="Cadence", border_style="#ffd700", padding=(1, 1))
+
+    def _build_chapter_edits_panel(self) -> Panel:
+        """Create the chapter edits and file activity panel."""
+        data = self.chapter_edits if isinstance(self.chapter_edits, dict) else {}
+        chapters = data.get("chapters", []) if data else []
+        touch_window = data.get("target_touch_window")
+
+        if not chapters:
+            body = Text("No chapter edit history yet.", style="italic dim")
+        else:
+            sorted_chapters = sorted(
+                chapters,
+                key=lambda entry: entry.get("edit_sessions", 0),
+                reverse=True,
+            )
+            table = Table(expand=True, pad_edge=False, show_edge=False)
+            table.add_column("Chapter", style="bold #ff69b4")
+            table.add_column("+Add", justify="right")
+            table.add_column("-Del", justify="right")
+            table.add_column("Sessions", justify="right")
+            table.add_column("Net", justify="right")
+
+            for entry in sorted_chapters[:6]:
+                name = entry.get("name", "—")
+                additions = entry.get("additions", 0)
+                deletions = entry.get("deletions", 0)
+                sessions = entry.get("edit_sessions", 0)
+                net = None
+                if isinstance(additions, (int, float)) and isinstance(deletions, (int, float)):
+                    net = additions - deletions
+                table.add_row(
+                    name,
+                    f"{additions:,}" if isinstance(additions, (int, float)) else "—",
+                    f"{deletions:,}" if isinstance(deletions, (int, float)) else "—",
+                    f"{sessions}" if isinstance(sessions, (int, float)) else "—",
+                    f"{net:+,}" if isinstance(net, (int, float)) else "—",
+                )
+
+            most = sorted_chapters[0] if sorted_chapters else None
+            least_entry = sorted_chapters[-1] if sorted_chapters else None
+
+            summary_bits: list[str] = []
+            if most:
+                summary_bits.append(
+                    "Most edited:"
+                    f" {most.get('name', '—')}"
+                    f" ({most.get('edit_sessions', 0)} sessions)"
+                )
+            if least_entry and least_entry is not most:
+                summary_bits.append(
+                    "Needs love:"
+                    f" {least_entry.get('name', '—')}"
+                    f" ({least_entry.get('edit_sessions', 0)} session(s))"
+                )
+            if touch_window:
+                summary_bits.append(touch_window)
+
+            body = Group(
+                Text("🗃️ Chapter Edit Pulse", style="bold #ff69b4"),
+                Text(" • ".join(summary_bits), style="dim"),
+                Text(""),
+                table,
+            )
+
+        return Panel(body, title="Chapter Edits", border_style="#ff69b4", padding=(1, 1))
 
     def _build_tasks_table(self) -> Table:
         """Create a Rich table showing daily task counts."""
