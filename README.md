@@ -26,10 +26,20 @@ A Textual-based terminal user interface application.
 To start the Vespers application:
 
 ```bash
-python src/main.py
+python -m src.main
+```
+
+Or with the virtual environment explicitly:
+
+```bash
+.venv/bin/python -m src.main
 ```
 
 Press `q` to quit the application.
+
+### Mock Data
+
+For development, the app loads mock task data from `mock_data.json`. You can edit this file to change the displayed data on the dashboard.
 
 ## Development
 

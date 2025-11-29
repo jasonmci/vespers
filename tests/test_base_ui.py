@@ -28,9 +28,7 @@ async def test_app_has_dashboard_tab():
         tabbed_content = app.query_one(TabbedContent)
         # Query for a tab pane with id or title "dashboard"
         dashboard_tabs = [
-            tab
-            for tab in tabbed_content.query(TabPane)
-            if "dashboard" in str(tab.id).lower()
+            tab for tab in tabbed_content.query(TabPane) if "dashboard" in str(tab.id).lower()
         ]
         assert len(dashboard_tabs) > 0, "Dashboard tab not found"
 
@@ -42,11 +40,7 @@ async def test_app_has_task_tab():
     async with app.run_test():
         tabbed_content = app.query_one(TabbedContent)
         # Query for a tab pane with id or title "task"
-        task_tabs = [
-            tab
-            for tab in tabbed_content.query(TabPane)
-            if "task" in str(tab.id).lower()
-        ]
+        task_tabs = [tab for tab in tabbed_content.query(TabPane) if "task" in str(tab.id).lower()]
         assert len(task_tabs) > 0, "Task tab not found"
 
 
@@ -58,6 +52,4 @@ async def test_dashboard_is_default_tab():
         tabbed_content = app.query_one(TabbedContent)
         active_tab = tabbed_content.active
         assert active_tab is not None
-        assert (
-            "dashboard" in str(active_tab).lower()
-        ), "Dashboard should be the default active tab"
+        assert "dashboard" in str(active_tab).lower(), "Dashboard should be the default active tab"

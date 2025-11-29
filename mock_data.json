@@ -1,0 +1,500 @@
+{
+    "completed_tasks": [
+        {
+            "date": "11-18",
+            "count": 3
+        },
+        {
+            "date": "11-19",
+            "count": 5
+        },
+        {
+            "date": "11-20",
+            "count": 2
+        },
+        {
+            "date": "11-21",
+            "count": 7
+        },
+        {
+            "date": "11-22",
+            "count": 4
+        },
+        {
+            "date": "11-23",
+            "count": 6
+        },
+        {
+            "date": "11-24",
+            "count": 1
+        },
+        {
+            "date": "11-25",
+            "count": 8
+        },
+        {
+            "date": "11-26",
+            "count": 3
+        },
+        {
+            "date": "11-27",
+            "count": 5
+        }
+    ],
+    "words_written": [
+        {
+            "date": "11-18",
+            "words": 450
+        },
+        {
+            "date": "11-19",
+            "words": 780
+        },
+        {
+            "date": "11-20",
+            "words": 320
+        },
+        {
+            "date": "11-21",
+            "words": 910
+        },
+        {
+            "date": "11-22",
+            "words": 610
+        },
+        {
+            "date": "11-23",
+            "words": 840
+        },
+        {
+            "date": "11-24",
+            "words": 250
+        },
+        {
+            "date": "11-25",
+            "words": 1020
+        },
+        {
+            "date": "11-26",
+            "words": 540
+        },
+        {
+            "date": "11-27",
+            "words": 760
+        }
+    ],
+    "recent_activity": [
+        {
+            "type": "task",
+            "description": "Completed task: 'Review Chapter 3'",
+            "ago": "2 hours ago"
+        },
+        {
+            "type": "words",
+            "description": "Added 347 words to 'Project Notes'",
+            "ago": "3 hours ago"
+        },
+        {
+            "type": "doc",
+            "description": "Created new document: 'Meeting Minutes'",
+            "ago": "5 hours ago"
+        },
+        {
+            "type": "outline",
+            "description": "Edited outline for 'Research Paper'",
+            "ago": "1 day ago"
+        },
+        {
+            "type": "task",
+            "description": "Completed task: 'Send follow-up emails'",
+            "ago": "1 day ago"
+        }
+    ],
+    "outline": [
+        {
+            "title": "Act I - Foundations",
+            "children": [
+                {
+                    "title": "Chapter 1 - Arrival",
+                    "completed": true,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": true
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 2 - First Conflict",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 3 - Turning Point",
+                    "completed": true
+                }
+            ]
+        },
+        {
+            "title": "Act I - Foundations",
+            "children": [
+                {
+                    "title": "Chapter 1 - Arrival",
+                    "completed": true,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": true
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 2 - First Conflict",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 3 - Turning Point",
+                    "completed": true
+                }
+            ]
+        },
+        {
+            "title": "Act I - Foundations",
+            "children": [
+                {
+                    "title": "Chapter 1 - Arrival",
+                    "completed": true,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": true
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 2 - First Conflict",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 3 - Turning Point",
+                    "completed": true
+                }
+            ]
+        },
+        {
+            "title": "Act I - Foundations",
+            "children": [
+                {
+                    "title": "Chapter 1 - Arrival",
+                    "completed": true,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": true
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 2 - First Conflict",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 3 - Turning Point",
+                    "completed": true
+                }
+            ]
+        },
+        {
+            "title": "Act II - Rising Action",
+            "children": [
+                {
+                    "title": "Chapter 4 - New Allies",
+                    "completed": true,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": true
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": true
+                        },
+                        {
+                            "title": "Scene 3",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 5 - Midpoint",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 5 - Again",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 5 - One more time",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Chapter 6 - Collapse",
+                    "completed": false
+                }
+            ]
+        },
+        {
+            "title": "Act III - Resolution",
+            "children": [
+                {
+                    "title": "Chapter 7 - Regroup",
+                    "completed": false
+                },
+                {
+                    "title": "Chapter 8 - Final Battle",
+                    "completed": false,
+                    "children": [
+                        {
+                            "title": "Scene 1",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 2",
+                            "completed": false
+                        },
+                        {
+                            "title": "Scene 3",
+                            "completed": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Appendix - Lore",
+            "children": [
+                {
+                    "title": "Timeline",
+                    "completed": true
+                },
+                {
+                    "title": "Factions",
+                    "completed": false
+                },
+                {
+                    "title": "Geography",
+                    "completed": true
+                }
+            ]
+        },
+        {
+            "title": "Character Arcs",
+            "children": [
+                {
+                    "title": "Protagonist",
+                    "completed": true
+                },
+                {
+                    "title": "Antagonist",
+                    "completed": false
+                },
+                {
+                    "title": "Mentor",
+                    "completed": true
+                },
+                {
+                    "title": "Sidekick",
+                    "completed": false
+                }
+            ]
+        },
+        {
+            "title": "Worldbuilding",
+            "children": [
+                {
+                    "title": "Magic System",
+                    "completed": true,
+                    "children": [
+                        {
+                            "title": "Rules",
+                            "completed": true
+                        },
+                        {
+                            "title": "Costs",
+                            "completed": true
+                        }
+                    ]
+                },
+                {
+                    "title": "Economy",
+                    "completed": false
+                },
+                {
+                    "title": "History",
+                    "completed": false
+                }
+            ]
+        },
+        {
+            "title": "Themes",
+            "children": [
+                {
+                    "title": "Identity",
+                    "completed": true
+                },
+                {
+                    "title": "Community",
+                    "completed": false
+                },
+                {
+                    "title": "Power",
+                    "completed": false
+                }
+            ]
+        },
+        {
+            "title": "Foreshadowing",
+            "children": [
+                {
+                    "title": "Symbolism",
+                    "completed": true
+                },
+                {
+                    "title": "Recurring Motifs",
+                    "completed": false
+                },
+                {
+                    "title": "Prophecy",
+                    "completed": false
+                }
+            ]
+        },
+        {
+            "title": "Side Quests",
+            "children": [
+                {
+                    "title": "Investigation",
+                    "completed": false
+                },
+                {
+                    "title": "Heist",
+                    "completed": true
+                },
+                {
+                    "title": "Rescue",
+                    "completed": false
+                },
+                {
+                    "title": "Diplomacy",
+                    "completed": true
+                }
+            ]
+        },
+        {
+            "title": "Revision Checklist",
+            "children": [
+                {
+                    "title": "Continuity",
+                    "completed": true
+                },
+                {
+                    "title": "Pacing",
+                    "completed": false
+                },
+                {
+                    "title": "Tone",
+                    "completed": false
+                },
+                {
+                    "title": "Line Edits",
+                    "completed": false
+                }
+            ]
+        }
+    ]
+}
