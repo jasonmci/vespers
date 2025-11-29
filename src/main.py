@@ -33,6 +33,7 @@ class VespersApp(App):
         self.lexical_variety: dict = data.get("lexical_variety", {})
         self.cadence: dict = data.get("cadence", {})
         self.chapter_edits: dict = data.get("chapter_edits", {})
+        self.task_productivity: list[dict] = data.get("task_productivity", [])
 
     def _load_mock_data(self) -> dict:
         """Load mock data from JSON file."""
@@ -57,6 +58,7 @@ class VespersApp(App):
                     lexical_variety=self.lexical_variety,
                     cadence=self.cadence,
                     chapter_edits=self.chapter_edits,
+                    task_productivity=self.task_productivity,
                     id="dashboard-chart",
                 )
             with TabPane("Task", id="task"):

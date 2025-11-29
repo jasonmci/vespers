@@ -150,6 +150,24 @@ async def test_dashboard_shows_chart_with_completed_tasks():
             },
         ],
     }
+    app.task_productivity = [
+        {
+            "started_at": "2025-11-27T09:00:00",
+            "ended_at": "2025-11-27T09:25:00",
+            "task_name": "Draft final battle",
+            "breaks": 2,
+            "idle_seconds": 305,
+            "allocated_break_seconds": 300,
+        },
+        {
+            "started_at": "2025-11-27T11:00:00",
+            "ended_at": "2025-11-27T11:25:00",
+            "task_name": "Outline epilogue",
+            "breaks": 1,
+            "idle_seconds": 120,
+            "allocated_break_seconds": 1200,
+        },
+    ]
 
     async with app.run_test():
         # Navigate to dashboard (it's already the default)
@@ -197,13 +215,11 @@ async def test_dashboard_shows_chart_with_completed_tasks():
         assert "↓" in dialogue_section, "Dialogue section should show downward target arrow"
         assert "↑" in dialogue_section, "Dialogue section should show upward target arrow"
         assert "▄" in dialogue_section, "Dialogue section should render half-height dialogue blocks"
-        # assert "lexical variety" in chart_text
-        # assert "sentence & paragraph cadence" in chart_text
-        # assert "chapter edit pulse" in chart_text
-        # assert "recent activity" in chart_text
-        # assert "review chapter 3" in chart_text
-        # assert "1,020" in chart_text or "1020" in chart_text
-        # assert "no productivity data" not in chart_text
+    assert "task productivity" in chart_text
+    assert "idle drift" in chart_text
+    assert "pomodoro lag" in chart_text
+    assert "listing breaks" in chart_text
+    # Additional panel assertions pruned for cross-platform stability
 
 
 @pytest.mark.asyncio

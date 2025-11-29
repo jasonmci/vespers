@@ -1,6 +1,7 @@
 """Dashboard widgets for the Vespers application."""
 
 import re
+from datetime import datetime
 from typing import Optional
 
 from rich.console import Group
@@ -32,6 +33,7 @@ class DashboardChart(Static):
         lexical_variety=None,
         cadence=None,
         chapter_edits=None,
+        task_productivity=None,
         **kwargs,
     ):
         """Initialize the dashboard chart.
@@ -57,9 +59,11 @@ class DashboardChart(Static):
         self.lexical_variety = lexical_variety or {}
         self.cadence = cadence or {}
         self.chapter_edits = chapter_edits or {}
+        self.task_productivity = task_productivity or []
         self._dialogue_bar_width = 28
         self._readability_bar_width = 28
         self._readability_max_grade = 20.0
+        self._pomodoro_gap_threshold = 30  # seconds
 
     def render(self) -> Panel:
         """Render the dashboard chart as a Rich Panel."""
@@ -85,6 +89,7 @@ class DashboardChart(Static):
             self.chapter_edits.get("chapters") if isinstance(self.chapter_edits, dict) else None
         )
         has_chapter_edits = bool(chapter_entries)
+        has_task_productivity = bool(self.task_productivity)
 
         if not (
             has_tasks
@@ -96,6 +101,7 @@ class DashboardChart(Static):
             or has_lexical
             or has_cadence
             or has_chapter_edits
+            or has_task_productivity
         ):
             message = Text("No productivity data yet.", style="italic dim")
             return Panel(
@@ -109,13 +115,25 @@ class DashboardChart(Static):
         outline_panel = self._build_outline_panel()
         words_panel = self._build_words_panel()
         activity_panel = self._build_activity_panel()
+        productivity_panel = self._build_task_productivity_panel()
+        pomodoro_gap_panel = self._build_pomodoro_gap_panel()
         readability_panel = self._build_readability_panel()
         dialogue_panel = self._build_dialogue_panel()
         lexical_panel = self._build_lexical_panel()
         cadence_panel = self._build_cadence_panel()
         chapter_panel = self._build_chapter_edits_panel()
 
-        left_column = Group(task_panel, Text(""), words_panel, Text(""), activity_panel)
+        left_column = Group(
+            task_panel,
+            Text(""),
+            productivity_panel,
+            Text(""),
+            pomodoro_gap_panel,
+            Text(""),
+            words_panel,
+            Text(""),
+            activity_panel,
+        )
         middle_column = Group(chapter_panel, Text(""), outline_panel)
         right_column = Group(
             readability_panel,
@@ -153,6 +171,98 @@ class DashboardChart(Static):
                 self._build_tasks_table(),
             )
         return Panel(body, title="Tasks", border_style="#ff8c00", padding=(1, 1))
+
+    def _build_task_productivity_panel(self) -> Panel:
+        """Create the task productivity panel summarizing pomodoro focus sessions."""
+        if not self.task_productivity:
+            body = Text("No pomodoro focus sessions recorded yet.", style="italic dim")
+        else:
+            table = Table(expand=True, pad_edge=False, show_edge=False)
+            table.add_column("Start", style="bold #ff8c00")
+            table.add_column("Task", style="white", ratio=2)
+            table.add_column("Breaks", justify="right")
+            table.add_column("Idle Lost", justify="right")
+
+            total_idle = 0
+            for entry in self.task_productivity[:6]:
+                started_at = entry.get("started_at")
+                task_name = entry.get("task_name", "Untitled task")
+                breaks = entry.get("breaks")
+                idle_seconds = entry.get("idle_seconds")
+                if isinstance(idle_seconds, (int, float)):
+                    total_idle += max(0, int(idle_seconds))
+
+                start_label = self._format_pomodoro_start(started_at)
+                breaks_text = (
+                    Text(f"{int(breaks)}", style="bold #ff8c00")
+                    if isinstance(breaks, (int, float))
+                    else Text("—", style="dim")
+                )
+                idle_style = (
+                    "#ff6b6b"
+                    if isinstance(idle_seconds, (int, float)) and idle_seconds >= 300
+                    else "dim"
+                )
+                idle_label = Text(self._format_idle_duration(idle_seconds), style=idle_style)
+
+                table.add_row(start_label, task_name, breaks_text, idle_label)
+
+            body = Group(
+                Text("⏱️ Task Productivity", style="bold #ff8c00"),
+                Text(
+                    f"Idle drift this session set: {self._format_idle_duration(total_idle)}",
+                    style="dim",
+                ),
+                Text(""),
+                table,
+            )
+
+        return Panel(body, title="Task Productivity", border_style="#ff8c00", padding=(1, 1))
+
+    def _build_pomodoro_gap_panel(self) -> Panel:
+        """Show breaks between pomodoros that exceeded the acceptable lag."""
+        gaps = self._calculate_pomodoro_gaps()
+        if not gaps:
+            body = Text("All breaks stayed within their allocated windows.", style="italic dim")
+        else:
+            table = Table(expand=True, pad_edge=False, show_edge=False)
+            table.add_column("Next Start", style="bold #ff8c00")
+            table.add_column("Prev Task", style="dim", ratio=2)
+            table.add_column("Next Task", style="white", ratio=2)
+            table.add_column("Plan", justify="right")
+            table.add_column("Overrun", justify="right")
+
+            for entry in gaps[:6]:
+                start_label = self._format_pomodoro_start(entry.get("started_at"))
+                prev_task = entry.get("previous_task") or "—"
+                next_task = entry.get("next_task") or "—"
+                planned_seconds = entry.get("allocated_break_seconds")
+                overrun_seconds = entry.get("overrun_seconds")
+                lag_style = (
+                    "#ff6b6b"
+                    if isinstance(overrun_seconds, (int, float)) and overrun_seconds > 0
+                    else "dim"
+                )
+                table.add_row(
+                    start_label,
+                    prev_task,
+                    next_task,
+                    self._format_idle_duration(planned_seconds),
+                    Text(self._format_idle_duration(overrun_seconds), style=lag_style),
+                )
+
+            body = Group(
+                Text("⏳ Pomodoro Lag", style="bold #ff8c00"),
+                Text(
+                    "Listing breaks that exceeded plan by more than "
+                    f"{self._pomodoro_gap_threshold}s",
+                    style="dim",
+                ),
+                Text(""),
+                table,
+            )
+
+        return Panel(body, title="Pomodoro Lag", border_style="#ff8c00", padding=(1, 1))
 
     def _build_words_panel(self) -> Panel:
         """Create the words-written panel content."""
@@ -723,3 +833,81 @@ class DashboardChart(Static):
             progress.append(Text(" +", style="bold #ff8c00"))
 
         return progress
+
+    def _format_idle_duration(self, seconds: Optional[float]) -> str:
+        """Convert idle seconds into a compact human readable duration."""
+        if not isinstance(seconds, (int, float)):
+            return "—"
+
+        total_seconds = max(0, int(seconds))
+        minutes, remainder = divmod(total_seconds, 60)
+        if minutes and remainder:
+            return f"{minutes}m {remainder}s"
+        if minutes:
+            return f"{minutes}m"
+        return f"{remainder}s"
+
+    def _format_pomodoro_start(self, started_at: Optional[str]) -> str:
+        """Render an ISO timestamp as a short label for the productivity table."""
+        if not started_at:
+            return "—"
+
+        try:
+            dt = datetime.fromisoformat(str(started_at))
+        except ValueError:
+            return str(started_at)
+
+        return dt.strftime("%b %d %H:%M")
+
+    def _parse_iso_datetime(self, value: Optional[str]) -> Optional[datetime]:
+        """Safely parse an ISO8601 string into a datetime."""
+        if not value:
+            return None
+
+        try:
+            return datetime.fromisoformat(str(value))
+        except ValueError:
+            return None
+
+    def _calculate_pomodoro_gaps(self) -> list[dict]:
+        """Return gap entries between pomodoros exceeding the configured threshold."""
+        sessions: list[dict] = []
+        for entry in self.task_productivity:
+            start_dt = self._parse_iso_datetime(entry.get("started_at"))
+            if not start_dt:
+                continue
+            end_dt = self._parse_iso_datetime(entry.get("ended_at")) or start_dt
+            sessions.append({"data": entry, "_start": start_dt, "_end": end_dt})
+
+        sessions.sort(key=lambda item: item["_start"])
+        gaps: list[dict] = []
+        prev_end: Optional[datetime] = None
+        prev_task: Optional[str] = None
+
+        for session in sessions:
+            start_dt = session["_start"]
+            if prev_end is not None:
+                gap_seconds = (start_dt - prev_end).total_seconds()
+                data = session["data"]
+                allocated_break = data.get("allocated_break_seconds")
+                if not isinstance(allocated_break, (int, float)):
+                    allocated_break = 300
+                allocated_break = max(0, int(allocated_break))
+                grace_limit = allocated_break + self._pomodoro_gap_threshold
+                if gap_seconds > grace_limit:
+                    overrun_seconds = gap_seconds - allocated_break
+                    gaps.append(
+                        {
+                            "started_at": data.get("started_at"),
+                            "next_task": data.get("task_name"),
+                            "previous_task": prev_task,
+                            "gap_seconds": gap_seconds,
+                            "allocated_break_seconds": allocated_break,
+                            "overrun_seconds": overrun_seconds,
+                        }
+                    )
+
+            prev_end = session["_end"]
+            prev_task = session["data"].get("task_name")
+
+        return gaps

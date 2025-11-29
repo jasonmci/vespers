@@ -41,6 +41,40 @@
             "count": 5
         }
     ],
+    "task_productivity": [
+        {
+            "started_at": "2025-11-27T09:00:00",
+            "ended_at": "2025-11-27T09:25:00",
+            "task_name": "Revise Chapter 8 battle",
+            "breaks": 1,
+            "idle_seconds": 210,
+            "allocated_break_seconds": 300
+        },
+        {
+            "started_at": "2025-11-27T11:00:00",
+            "ended_at": "2025-11-27T11:25:00",
+            "task_name": "Outline epilogue beats",
+            "breaks": 2,
+            "idle_seconds": 480,
+            "allocated_break_seconds": 300
+        },
+        {
+            "started_at": "2025-11-27T14:00:00",
+            "ended_at": "2025-11-27T14:25:00",
+            "task_name": "Polish dialogue pass",
+            "breaks": 0,
+            "idle_seconds": 95,
+            "allocated_break_seconds": 300
+        },
+        {
+            "started_at": "2025-11-27T16:00:00",
+            "ended_at": "2025-11-27T16:25:00",
+            "task_name": "Archive research notes",
+            "breaks": 1,
+            "idle_seconds": 165,
+            "allocated_break_seconds": 1200
+        }
+    ],
     "words_written": [
         {
             "date": "11-18",
